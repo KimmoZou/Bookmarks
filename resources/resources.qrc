@@ -1,0 +1,18 @@
+<!DOCTYPE RCC>
+
+<RCC version="1.0">
+    <qresource prefix="icon">
+        <file alias="icon-file">file.svg</file>
+        <file alias="icon-output">output.svg</file>
+        <file alias="icon-input">input.svg</file>
+        <file alias="icon-save">save.svg</file>
+        <file alias="icon-help">help.svg</file>
+        <file alias="icon-add">add.svg</file>
+        <file alias="icon-insert">insert.svg</file>
+        <file alias="icon-delete">delete.svg</file>
+        <file alias="icon-up">up.svg</file>
+        <file alias="icon-down">down.svg</file>
+        <file alias="icon-warn">warn.svg</file>
+        <file alias="icon-app">bookmark.svg</file>
+    </qresource>
+</RCC>
