@@ -25,8 +25,8 @@ class Help(QDialog):
         # 事件
         self.ok.clicked.connect(self.close)
 
-
-
+    def __set_text(self):
+        pass
 
 
 

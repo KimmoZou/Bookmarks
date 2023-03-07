@@ -1,9 +1,7 @@
-import copy
-
-from PySide6.QtGui import QStandardItemModel, QStandardItem, QIcon
+from PySide6.QtGui import QStandardItemModel, QIcon
 from PySide6.QtWidgets import (
     QWidget, QTreeWidget, QHBoxLayout, QLabel,
-    QSpinBox, QVBoxLayout, QSpacerItem, QSizePolicy, QTreeWidgetItem, QPushButton,
+    QSpinBox, QVBoxLayout, QSpacerItem, QSizePolicy, QPushButton,
     QMessageBox
 )
 
@@ -17,7 +15,6 @@ from resources import resources_rc
 class Contents(QWidget):
     def __init__(self):
         super().__init__()
-        self.__catalogs = []
         # 当前选中的值
         self.selected_item = None
         self.selected_row = 0
@@ -42,6 +39,9 @@ class Contents(QWidget):
             "QTreeWidget{"
             "font:15px;"
             "}"
+            "QTreeWidget:item{"
+            "height:20px"
+            "}"
             "QTreeWidget:item:selected{"
             "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);"
             "}"
@@ -55,7 +55,7 @@ class Contents(QWidget):
         self.__pages_shift = QSpinBox()
         self.__pages_shift.setMaximumSize(70, 30)
         self.__pages_shift.setSingleStep(1)
-        self.__pages_shift.setMinimum(0)
+        self.__pages_shift.setMinimum(-100)
         self.__pages_shift.setMaximum(9999)
         self.__pages_shift.setAlignment(Qt.AlignCenter)
 
@@ -92,7 +92,6 @@ class Contents(QWidget):
         self.__up_btn.clicked.connect(self.__item_up)
         self.__down_btn.clicked.connect(self.__item_down)
 
-
     def __add_widgets(self):
         self.__vertical_layout.addWidget(self.__content_view)
         self.__horizon_layout.addWidget(self.__label1)
@@ -110,7 +109,7 @@ class Contents(QWidget):
     @QtCore.Slot()
     def __item_clicked(self, item, column):
         self.selected_item = item
-        self.__update_btn()
+        self.update_btn()
 
     # 插入一行数据
     @QtCore.Slot()
@@ -129,7 +128,7 @@ class Contents(QWidget):
             self.__content_view.addTopLevelItem(item)
             self.selected_item = item
             self.selected_item.setSelected(True)
-            self.__update_btn()
+            self.update_btn()
             return
 
         # 获取选中行的父亲
@@ -144,21 +143,27 @@ class Contents(QWidget):
         self.selected_item.setSelected(False)
         self.selected_item = item
         self.selected_item.setSelected(True)
-        self.__update_btn()
+        self.update_btn()
 
     # 添加一个儿子
     @QtCore.Slot()
-    def __item_insert(self):
+    def __item_insert(self, e):
+
         # 插入的节点
-        item = items.Item()
-        item.setText(0, "新章节")
-        item.setText(1, "新页码")
+        item = None
+        if e is False:
+            item = items.Item()
+            item.setText(0, "新章节")
+            item.setText(1, "新页码")
+        else:
+            item = e
+
         self.selected_item.addChild(item)
         self.__content_view.expandItem(self.selected_item)
         self.selected_item.setSelected(False)
         self.selected_item = item
         self.selected_item.setSelected(True)
-        self.__update_btn()
+        self.update_btn()
 
     # 删除一个节点
     @QtCore.Slot()
@@ -180,7 +185,7 @@ class Contents(QWidget):
             if self.selected_item is None:
                 self.selected_item = item_parent
 
-        self.__update_btn()
+        self.update_btn()
         if self.selected_item is not None:
             self.selected_item.setSelected(True)
 
@@ -213,7 +218,7 @@ class Contents(QWidget):
 
         self.selected_row = self.selected_row - 1
         self.__update_selected_row()
-        self.__update_btn()
+        self.update_btn()
 
     # 向下移动
     @QtCore.Slot()
@@ -243,7 +248,7 @@ class Contents(QWidget):
 
         self.selected_row = self.selected_row + 1
         self.__update_selected_row()
-        self.__update_btn()
+        self.update_btn()
 
     # 获得当前所处的行
     def __update_selected_row(self):
@@ -255,7 +260,8 @@ class Contents(QWidget):
             self.selected_row = item_parent.indexOfChild(self.selected_item)
 
     # 更新按钮
-    def __update_btn(self):
+    def update_btn(self):
+        self.__add_btn.setEnabled(True)
         if self.selected_item is None:
             # 没有选中
             self.__insert_btn.setEnabled(False)
@@ -291,12 +297,57 @@ class Contents(QWidget):
             else:
                 self.__down_btn.setEnabled(True)
 
-    def get_catalogs(self):
-        return self.__catalogs
+    def init_tree(self, li: list):
+        item = items.Item()
+        item.set_value(li[1], str(li[2]).strip(" "))
+        if li[0] == 0:
+            self.__item_add(item)
+        elif li[0] == 1:
+            self.__item_insert(item)
+        else:
+            while li[0] < 0:
+                self.selected_item.setSelected(False)
+                self.selected_item = self.selected_item.parent()
+                self.selected_item.setSelected(True)
+                li[0] += 1
+            self.__item_add(item)
 
-    def set_catalogs(self, catalogs):
-        self.__catalogs = catalogs
+        # 初始化表格的时候不允许使用按钮
+        self.dis_btn()
 
+    def dis_btn(self):
+        self.__add_btn.setDisabled(True)
+        self.__insert_btn.setDisabled(True)
+        self.__delete_btn.setDisabled(True)
+        self.__up_btn.setDisabled(True)
+        self.__down_btn.setDisabled(True)
+
+    def clear(self):
+        while self.__content_view.topLevelItem(0) is not None:
+            self.__content_view.takeTopLevelItem(0)
+
+        self.selected_item = None
+        self.selected_row = 0
+
+    def isEmpty(self):
+        return self.__content_view.topLevelItemCount() == 0
+
+    def saved(self):
+        self.__content_view.setEnabled(True)
+        self.__add_btn.setEnabled(True)
+        self.__insert_btn.setEnabled(True)
+        self.__delete_btn.setEnabled(True)
+        self.__up_btn.setEnabled(True)
+        self.__down_btn.setEnabled(True)
+
+    def get_shift(self):
+        return self.__pages_shift.value()
+
+    def get_root(self):
+        return self.__content_view
+
+    def dis_content(self):
+        self.__content_view.setDisabled(True)
 
 from PySide6.QtWidgets import QApplication
 
