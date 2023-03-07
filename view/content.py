@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 )
 
 from PySide6.QtCore import Qt
+from PySide6 import QtCore
 from PySide6.QtGui import QPixmap
 from view.widgets import items
 from resources import resources_rc
@@ -91,6 +92,7 @@ class Contents(QWidget):
         self.__up_btn.clicked.connect(self.__item_up)
         self.__down_btn.clicked.connect(self.__item_down)
 
+
     def __add_widgets(self):
         self.__vertical_layout.addWidget(self.__content_view)
         self.__horizon_layout.addWidget(self.__label1)
@@ -105,17 +107,22 @@ class Contents(QWidget):
         self.__vertical_layout.addLayout(self.__horizon_layout)
         self.setLayout(self.__vertical_layout)
 
+    @QtCore.Slot()
     def __item_clicked(self, item, column):
         self.selected_item = item
         self.__update_btn()
 
     # 插入一行数据
-    def __item_add(self):
-
+    @QtCore.Slot()
+    def __item_add(self, e):
         # 插入的节点
-        item = items.Item()
-        item.setText(0, "新章节")
-        item.setText(1, "新页码")
+        item = None
+        if e is False:
+            item = items.Item()
+            item.setText(0, "新章节")
+            item.setText(1, "新页码")
+        else:
+            item = e
 
         # 如果没有数据，直接加入
         if self.selected_item is None:
@@ -140,6 +147,7 @@ class Contents(QWidget):
         self.__update_btn()
 
     # 添加一个儿子
+    @QtCore.Slot()
     def __item_insert(self):
         # 插入的节点
         item = items.Item()
@@ -153,6 +161,7 @@ class Contents(QWidget):
         self.__update_btn()
 
     # 删除一个节点
+    @QtCore.Slot()
     def __item_delete(self):
         item_parent = self.selected_item.parent()
         self.__update_selected_row()
@@ -176,6 +185,7 @@ class Contents(QWidget):
             self.selected_item.setSelected(True)
 
     # 向上移动
+    @QtCore.Slot()
     def __item_up(self):
         # 按钮不能用
         if not self.__up_btn.isEnabled():
@@ -206,6 +216,7 @@ class Contents(QWidget):
         self.__update_btn()
 
     # 向下移动
+    @QtCore.Slot()
     def __item_down(self):
         # 按钮不能用
         if not self.__down_btn.isEnabled():

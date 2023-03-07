@@ -1,11 +1,13 @@
 from PySide6.QtCore import Qt, QSize
+from PySide6 import  QtCore
 from PySide6.QtGui import QIcon, QAction
 from PySide6.QtWidgets import (
-    QMainWindow, QToolBar, QStatusBar
+    QMainWindow, QToolBar, QStatusBar, QFileDialog
 )
 
 from resources import resources_rc
 from view import content
+from view import helps
 
 
 class Window(QMainWindow):
@@ -47,6 +49,15 @@ class Window(QMainWindow):
         # 内容
         self.__contents = content.Contents()
 
+        self.helps = helps.Help()
+
+        # 绑定事件
+        self.__toolBar_file.triggered.connect(self.__open_file)
+        self.__toolBar_output.triggered.connect(self.__output_file)
+        self.__toolBar_input.triggered.connect(self.__input_file)
+        self.__toolBar_save.triggered.connect(self.__save_file)
+        self.__toolBar_help.triggered.connect(self.__help)
+
 
     def __add_widgets(self):
         # 添加菜单项
@@ -60,6 +71,44 @@ class Window(QMainWindow):
         self.addToolBar(self.__toolBar)
         self.setStatusBar(self.__statusBar)
         self.setCentralWidget(self.__contents)
+
+    @QtCore.Slot()
+    def __open_file(self):
+        fileName, filter = QFileDialog.getOpenFileName(self,
+                                               "打开文件",
+                                               "/",
+                                               " files (*.pdf)")
+        if fileName != '':
+            print(fileName)
+
+    def __output_file(self):
+        fileName, filter = QFileDialog.getSaveFileName(self,
+                                               "保存文件",
+                                               "/",
+                                               " files (*.txt)")
+        if fileName != '':
+            print(fileName)
+
+
+    def __input_file(self):
+        fileName, filter = QFileDialog.getOpenFileName(self,
+                                               "保存文件",
+                                               "/",
+                                               " files (*.txt)")
+        if fileName != '':
+            print(fileName)
+
+    def __save_file(self):
+        fileName, filter = QFileDialog.getSaveFileName(self,
+                                               "保存文件",
+                                               "/",
+                                               " files (*.pdf)")
+        if fileName != '':
+            print(fileName)
+
+    def __help(self):
+        self.helps.show()
+
 
 
 from PySide6.QtWidgets import QApplication
