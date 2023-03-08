@@ -176,8 +176,8 @@ class Window(QMainWindow):
 
         self.helps.show()
 
-    def error(self, errors):
-        self.__msgbox.setText(f"{errors[1]}")
+    def error(self, error):
+        self.__msgbox.setText(f"{error}")
         self.__msgbox.setStandardButtons(
             QMessageBox.Ok)
         self.__msgbox.show()

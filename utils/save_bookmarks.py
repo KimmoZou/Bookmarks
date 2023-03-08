@@ -1,7 +1,7 @@
 import sys
-import traceback
 
 from view.widgets import items
+from exceptions import  myexceptions
 
 class SaveBookmarks(object):
     def __init__(self):
@@ -23,9 +23,10 @@ class SaveBookmarks(object):
         try:
             self.__init_toc(self.treeRoot.topLevelItem(0), 1)
             self.__write()
-        except Exception:
-            exctype, value = sys.exc_info()[:2]
-            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        except myexceptions.PageNumberError:
+            self.signals.error.emit(myexceptions.PageNumberError().message)
+        except myexceptions.PageOutOFNumberError:
+            self.signals.error.emit(myexceptions.PageOutOFNumberError().message)
 
     def __init_toc(self, root: items.Item, lvl: int):
         if root is None:
@@ -34,7 +35,18 @@ class SaveBookmarks(object):
         li = []
         li.append(lvl)
         li.append(root.text(0))
-        li.append(int(root.text(1).strip('\t \n')) + self.shift)
+        page = root.text(1).strip('\t \n')
+
+        if not str.isdigit(page):
+            raise myexceptions.PageNumberError()
+
+        if int(page) + self.shift <= 0:
+            raise myexceptions.PageNumberError()
+
+        if int(page) + self.shift > self.pdf.page_count:
+            raise myexceptions.PageOutOFNumberError()
+
+        li.append(int(page) + self.shift)
         self.toc.append(li)
         # 先递归儿子
         if root.child(0) is not None:

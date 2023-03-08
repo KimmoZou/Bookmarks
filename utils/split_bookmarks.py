@@ -1,4 +1,3 @@
-from view.widgets import items
 
 
 class SplitBookmarks(object):
