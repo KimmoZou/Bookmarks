@@ -5,7 +5,7 @@ from view import window
 import ctypes
 
 
-class Main():
+class Main(object):
 
     def __init__(self):
         self.__app = QApplication([])

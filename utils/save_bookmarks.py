@@ -1,5 +1,3 @@
-import sys
-
 from view.widgets import items
 from exceptions import  myexceptions
 
