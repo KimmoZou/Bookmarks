@@ -2,7 +2,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
 
 
-
 class Item(QTreeWidgetItem):
     def __init__(self):
         super().__init__()
