@@ -21,12 +21,13 @@ class Help(QDialog):
         self.layout.addWidget(self.text)
         self.layout.addWidget(self.ok)
         self.setLayout(self.layout)
+        self.__set_text()
 
         # 事件
         self.ok.clicked.connect(self.close)
 
     def __set_text(self):
-        pass
+        self.text.setText("<h1>Bookmarks</h1>pdf 目录添加工具")
 
 
 
