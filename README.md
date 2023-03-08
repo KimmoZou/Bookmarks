@@ -12,4 +12,6 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 直接运行 main 文件夹下的 main.py 文件
 
 
+### 运行截图
+
 <img src="image/img.png">
