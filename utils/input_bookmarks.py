@@ -1,23 +1,29 @@
+from utils.base import Base
+from model import actions
+from model.signals import Signals
+from utils.tools import Tool
 
 
-class InputBookmarks(object):
+class InputBookmarks(Base):
     def __init__(self):
         self.signals = None
-        self.path = ''
+        self.input_action = None
 
-    def input_bookmarks(self, signals, args):
-        self.path = args[0]
+    def start(self, signals: Signals, action: actions.InputAction):
         self.signals = signals
+        self.input_action = action
+        self.__input_bookmarks()
+        self.__close()
 
+    def __input_bookmarks(self):
         try:
-
-            with open(self.path, 'r', encoding='utf-8', ) as f:
+            with open(self.input_action.path, 'r', encoding='utf-8', ) as f:
                 preLvl = 1
                 for line in f:
                     if line.strip('\n \t') == '':
                         continue
 
-                    bookmark = self.__handler_str(line)
+                    bookmark = Tool.str_to_list(line)
                     self.__emit_signal(bookmark, preLvl)
                     preLvl = bookmark[0]
 
@@ -25,7 +31,7 @@ class InputBookmarks(object):
         finally:
             f.close()
 
-    def __emit_signal(self, bookmark:list, preLvl: int):
+    def __emit_signal(self, bookmark: list, preLvl: int):
         li = []
         if bookmark[0] == preLvl:
             li = [0]
@@ -38,31 +44,6 @@ class InputBookmarks(object):
         li.append(str(bookmark[2]))
         self.signals.process.emit(li)
 
-    def __handler_str(self, line: str) -> list:
-        lvl = 1
-        i = 0
-        length = len(line)
-
-        # 获取级别
-        while i < (length - 4):
-            if line[i] == '\t':
-                i += 1
-                lvl += 1
-            elif line[i:i + 4] == "    ":
-                i += 4
-                lvl += 1
-            else:
-                break
-
-        # 处理字符串
-        line = line.strip('\n \t')
-        # 获取页码
-        i = len(line) - 1
-        while line[i] != ' ' and line[i] != '\t':
-            i -= 1
-
-        page = line[i + 1:].strip('\n \t')
-
-        title = line[0:i].strip('\n \t')
-
-        return [lvl, title, page]
+    def __close(self):
+        self.signals = None
+        self.input_action = None

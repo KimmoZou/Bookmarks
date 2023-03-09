@@ -1,56 +1,53 @@
 from PySide6.QtCore import QThreadPool
 from model.bookmarks import Bookmarks
 from model.worker import Worker
+from model import  actions
 from utils.split_bookmarks import SplitBookmarks
 from utils.output_bookmarks import OutputBookmarks
 from utils.input_bookmarks import InputBookmarks
 from utils.save_bookmarks import SaveBookmarks
 
+
 class HandlerTask(object):
     def __init__(self):
         self.bookmarks = Bookmarks()
-        self.splitBookmarks = SplitBookmarks()
-        self.outputBookmarks = OutputBookmarks()
-        self.inputBookmarks = InputBookmarks()
-        self.saveBookmarks = SaveBookmarks()
         self.threadPool = QThreadPool()
 
     # 处理打开文件
     def handler_open(self, path, processFunc=[], finishFunc=[]):
         self.bookmarks.read_pdf(path)
-        worker = Worker(self.splitBookmarks.split_bookmarks, self.bookmarks.bookmarks)
+        action = actions.OpenAction(self.bookmarks.bookmarks)
+        worker = Worker(SplitBookmarks(), action)
         for func in processFunc:
             worker.signals.process.connect(func)
         for func in finishFunc:
             worker.signals.finish.connect(func)
         self.threadPool.start(worker)
 
-    def handler_output(self, path, processFunc=[], finishFunc=[]):
-        worker = Worker(self.outputBookmarks.output_bookmarks,
-                        self.bookmarks.txt, path)
+    def handler_output(self, action: actions.OutputAction, processFunc=[], finishFunc=[]):
+        action.set_txt(self.bookmarks.txt)
+        worker = Worker(OutputBookmarks(),
+                        action)
         for func in processFunc:
             worker.signals.process.connect(func)
         for func in finishFunc:
             worker.signals.finish.connect(func)
         self.threadPool.start(worker)
 
-    def handler_input(self, path, processFunc=[], finishFunc=[]):
-        worker = Worker(self.inputBookmarks.input_bookmarks, path)
+    def handler_input(self, action, processFunc=[], finishFunc=[]):
+        worker = Worker(InputBookmarks(), action)
         for func in processFunc:
             worker.signals.process.connect(func)
         for func in finishFunc:
             worker.signals.finish.connect(func)
         self.threadPool.start(worker)
 
-    def handler_save(self, path, shift, treeRoot,
+    def handler_save(self, action: actions.SaveAction,
                      processFunc= [],
                      finishFunc= [],
                      errorFunc =[]):
-        worker = Worker(self.saveBookmarks.save_bookmarks,
-                        path,
-                        shift,
-                        self.bookmarks.doc,
-                        treeRoot)
+        action.set_pdf(self.bookmarks.doc)
+        worker = Worker(SaveBookmarks(), action)
         for func in processFunc:
             worker.signals.process.connect(func)
         for func in finishFunc:

@@ -1,20 +1,26 @@
+from utils.base import Base
 
-
-class OutputBookmarks(object):
+class OutputBookmarks(Base):
     def __init__(self):
-        self.txt = ''
-        self.signals = None
-        self.path = ''
+        self.__signals = None
+        self.__output_action = None
 
-    def output_bookmarks(self, signals, args ):
-        self.txt = args[0]
-        self.path = args[1]
-        self.signals = signals
+    def start(self, signal, action):
+        self.__signals = signal
+        self.__output_action = action
+        self.__output_bookmarks()
+        self.__close()
+
+    def __output_bookmarks(self):
 
         try:
-            with open(self.path,  'w', encoding='utf-8',) as f:
-                f.write(self.txt)
+            with open(self.__output_action.path,  'w', encoding='utf-8',) as f:
+                f.write(self.__output_action.txt)
         finally:
             f.close()
+
+    def __close(self):
+        self.__signals = None
+        self.__output_action = None
 
 
