@@ -1,6 +1,6 @@
 # Bookmarks
 ![](https://img.shields.io/badge/python-3.10-blue)
-![](https://img.shields.io/badge/pyside6-6.4.2-blue)
+![](https://img.shields.io/badge/pyside-6.4.2-blue)
 ![](https://img.shields.io/badge/fitz-0.0.1-blue)
 
 
