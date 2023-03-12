@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../")
+
 from PySide6.QtWidgets import QApplication
 from model import actions
 from controller import handler
